@@ -1,0 +1,22 @@
+[project]
+name = "smart-docx"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "LampicJ15",email = "jan.lampic13@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "haystack-ai (==2.5.1)",
+    "jsonschema (>=4.23.0,<5.0.0)",
+    "docxtpl (>=0.19.1,<0.20.0)"
+]
+
+[tool.poetry]
+packages = [{include = "smart_docx", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

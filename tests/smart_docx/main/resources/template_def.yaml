@@ -1,0 +1,49 @@
+name: Kuharska predloga
+file: ./resources/cooking_template.docx
+description: Predloga za ustvarjanje vrhunskih receptov in kuharskih navodil.
+
+instructions: |
+  Ste vrhunski kuhar, ki ustvarja mojstrovino. Navedite potrebne sestavine in podrobnosti. Nekatera polja bodo samodejno ustvarjena.
+
+fields:
+  - id: dish_name
+    source: INPUT
+    value:
+      type: string
+      minLength: 1
+    instructions: Vnesite ime jedi.
+  - id: main_ingredient
+    source: INPUT
+    value:
+      type: string
+      minLength: 1
+    instructions: Vnesite glavno sestavino.
+  - id: cooking_style
+    source: INPUT
+    value:
+      type: string
+      minLength: 1
+    instructions: Vnesite način priprave (npr. pečeno na žaru, pečeno v pečici, ocvrto).
+  - id: chef_suggestion
+    source: AUTO
+    value:
+      type: string
+    instructions: Poseben nasvet ali priporočilo kuharskega mojstra.
+  - id: nutrition_facts
+    source: AUTO
+    value:
+      type: object
+      properties:
+        calories:
+          type: integer
+          minimum: 0
+        protein:
+          type: number
+    instructions: JSON objekt, ki vsebuje podatke o hranilni vrednosti.
+  - id: recommended_side_dishes
+    source: AUTO
+    value:
+      type: array
+      items:
+        type: string
+    instructions: Seznam priporočenih prilog k tej jedi.
