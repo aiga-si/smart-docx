@@ -1,4 +1,5 @@
 import typing
+from dataclasses import dataclass
 from typing import Any
 
 import jinja2
@@ -6,9 +7,7 @@ from haystack import Pipeline
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack.components.generators import OpenAIGenerator
 
-from .definitions import TemplateDefinition, SourceType
-from .rendering import Field
-from .validations import sort_field_definitions
+from .definitions import TemplateDefinition, SourceType, sort_field_definitions
 from .. import settings
 from ..llm.generator import Generator
 
@@ -29,6 +28,12 @@ def _init_pipeline(instructions: str) -> Pipeline:
     p.add_component(instance=OpenAIGenerator(system_prompt=instructions, api_key=settings.OPENAI_API_KEY), name="llm")
     p.connect("prompt_builder", "llm")
     return p
+
+
+@dataclass
+class Field:
+    id: str
+    value: Any
 
 
 class TemplateFieldsGenerator:
