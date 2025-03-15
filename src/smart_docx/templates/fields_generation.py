@@ -1,3 +1,4 @@
+import logging
 import typing
 from dataclasses import dataclass
 from typing import Any
@@ -7,22 +8,13 @@ import jinja2
 from .definitions import TemplateDefinition, SourceType, sort_field_definitions
 from ..llm.json_answer_generator import JsonAnswerGenerator
 
-_question_template = """
-    Glede na navodila in kontekst, odgovori na vprašanje.    
-
-    Vprašanje: 
-    {{question}}
-    """
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class Field:
     id: str
     value: Any
-
-
-def _create_question(context: str, question: str) -> str:
-    return _question_template.format(context=context, question=question)
 
 
 class TemplateFieldsGenerator:
@@ -37,9 +29,8 @@ class TemplateFieldsGenerator:
     def _render_field_instructions(instructions: str, ctx: typing.Dict[str, typing.Any]) -> str:
         return jinja2.Template(instructions).render(ctx)
 
-    def _generate_field_value(self, field_instructions: str, field_context: typing.Dict[str, typing.Any], field_schema: dict) -> typing.Union[str, dict, list]:
-        question = _create_question(field_context, field_instructions)
-        return self.answer_generator.answer(question, field_schema)
+    def _generate_field_value(self, field_instructions: str, field_schema: dict) -> typing.Union[str, dict, list]:
+        return self.answer_generator.answer(field_instructions, field_schema)
 
     def generate_template_fields(self) -> typing.List[Field]:
         context = self.inputs.copy()
@@ -58,7 +49,10 @@ class TemplateFieldsGenerator:
             if field_context:
                 field_instructions = self._render_field_instructions(field_def.instructions, field_context)
 
-            field_value = self._generate_field_value(field_instructions, field_context, field_def.value)
+            logger.debug(f"Generating value for field {field_def.id}, instructions: {field_instructions}, context: {field_context}")
+            field_value = self.answer_generator.answer(field_instructions, field_def.value)
+
+            logger.debug(f"Generated value for field {field_def.id}, value: {field_value}")
             template_field = Field(id=field_def.id, value=field_value)
 
             context[field_def.id] = template_field

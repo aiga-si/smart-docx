@@ -18,7 +18,7 @@ class SmartDocx:
 
     def render(self, inputs: typing.Dict[str, typing.Any]):
         self.template_definition.validate_inputs(inputs)
-        generator = TemplateFieldsGenerator(self.template_definition, inputs=inputs)
+        generator = TemplateFieldsGenerator(template_definition=self.template_definition, inputs=inputs)
         fields = generator.generate_template_fields()
 
         context = _fields_to_dict(fields)
