@@ -12,17 +12,18 @@ def _fields_to_dict(fields: typing.List[Field]) -> typing.Dict[str, typing.Any]:
 
 
 class SmartDocx:
-    def __init__(self, template_definition: TemplateDefinition):
+    def __init__(self, template_definition: TemplateDefinition, template_file: typing.Union[typing.IO[bytes], str, PathLike]):
         self.template_definition = template_definition
+        self.template_file = template_file
         self.docx = None
 
     def render(self, inputs: typing.Dict[str, typing.Any]):
-        self.template_definition.validate_inputs(inputs)
+        self.template_definition.validate_template(template_file=self.template_file, inputs=inputs)
         generator = TemplateFieldsGenerator(template_definition=self.template_definition, inputs=inputs)
         fields = generator.generate_template_fields()
 
         context = _fields_to_dict(fields)
-        self.docx = DocxTemplate(self.template_definition.file)
+        self.docx = DocxTemplate(self.template_file)
         self.docx.render(context)
 
     def save(self, filename: typing.Union[typing.IO[bytes], str, PathLike]):

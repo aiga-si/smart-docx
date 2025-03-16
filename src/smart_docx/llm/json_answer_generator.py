@@ -39,7 +39,7 @@ def _init_pipeline(system_prompt: str):
                                        model="gpt-4o")
 
     converter_prompt_builder = PromptBuilder(template=_converter_prompt_template)
-    json_converter = OpenAIGenerator(api_key=Secret.from_token(settings.OPENAI_API_TOKEN), model="gpt-4o-mini")
+    json_converter = OpenAIGenerator(api_key=Secret.from_token(settings.OPENAI_API_TOKEN), model="gpt-4o")
     output_validator = OutputValidator()
 
     pipeline.add_component(name="llm", instance=answer_generator)

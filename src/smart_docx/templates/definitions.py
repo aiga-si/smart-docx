@@ -9,7 +9,7 @@ import yaml
 from docxtpl import DocxTemplate
 from jinja2 import Environment, meta
 from jsonschema.exceptions import SchemaError
-from pydantic import BaseModel, field_validator, model_validator, ConfigDict
+from pydantic import BaseModel, field_validator, ConfigDict
 
 
 class SaferDraft7Validator(jsonschema.Draft7Validator):
@@ -53,7 +53,6 @@ class FieldDefinition(BaseModel):
 
 class TemplateDefinition(BaseModel):
     name: str
-    file: typing.Union[typing.IO[bytes], str, PathLike]
     description: str
     instructions: str
     fields: List[FieldDefinition]
@@ -64,40 +63,42 @@ class TemplateDefinition(BaseModel):
     @classmethod
     def validate_fields(cls, fields: List[FieldDefinition]) -> List[FieldDefinition]:
         field_ids = [field.id for field in fields]
+        unique_fields = set(field_ids)
 
-        if len(field_ids) != len(set(field_ids)):
+        if len(field_ids) != len(unique_fields):
             duplicate_ids = [fid for fid in field_ids if field_ids.count(fid) > 1]
             raise ValueError(f"Duplicate field IDs found: {duplicate_ids}")
 
-        return fields
-
-    @model_validator(mode='after')
-    def validate_template_variables(self) -> typing.Self:
-        defined_fields = set([f.id for f in self.fields])
-        dependencies = set.union(*[f.dependencies for f in self.fields])
-
-        missing_dependencies = dependencies - defined_fields
+        dependencies = set.union(*[f.dependencies for f in fields])
+        missing_dependencies = dependencies - unique_fields
         if missing_dependencies:
             raise ValueError(f"Missing dependencies: {', '.join(missing_dependencies)}")
 
-        # verify all fields that are provided in the template are defined
-        fields_in_template = _get_template_variables(self.file)
+        # verify there is no cyclic dependencies
+        sort_field_definitions(fields)
+
+        return fields
+
+    def _validate_template_file(self, template_file: typing.Union[typing.IO[bytes]]):
+        defined_fields = set([f.id for f in self.fields])
+        fields_in_template = _get_template_variables(template_file)
         missing_variables = fields_in_template - defined_fields
         if missing_variables:
             raise ValueError(f"Missing defined fields, which are present in template: {', '.join(missing_variables)}")
 
-        # verify there is no cyclic dependencies
-        sort_field_definitions(self.fields)
-
-        return self
-
-    def validate_inputs(self, inputs: typing.Dict[str, Any]):
+    def _validate_inputs(self, inputs: typing.Dict[str, Any]):
         provided_inputs = inputs.keys()
         template_required_inputs = set([field.id for field in self.fields if field.source == SourceType.INPUT])
 
         missing_inputs = template_required_inputs - provided_inputs
         if missing_inputs:
             raise ValueError(f"Missing inputs: {', '.join(missing_inputs)}")
+
+    def validate_template(self,
+                          template_file: typing.Union[typing.IO[bytes], str, PathLike],
+                          inputs: typing.Dict[str, Any]):
+        self._validate_template_file(template_file)
+        self._validate_inputs(inputs)
 
 
 def load_template_definition(yaml_path: str) -> TemplateDefinition:
@@ -108,7 +109,6 @@ def load_template_definition(yaml_path: str) -> TemplateDefinition:
 
     return TemplateDefinition(
         name=data["name"],
-        file=data["file"],
         description=data.get("description", ""),
         instructions=data.get("instructions", ""),
         fields=fields
