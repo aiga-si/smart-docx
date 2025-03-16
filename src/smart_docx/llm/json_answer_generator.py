@@ -10,25 +10,28 @@ from .jsonschema_output_validator import OutputValidator
 from .. import settings
 
 _converter_prompt_template = """
-Na naslednje sledeče vprašanje:
-{{question}}
+Si strokovnjak na področju pretvarjanja teksta v JSON obliko.Spodaj sta navedena vprašanje ter odovor.
+Tvoja naloga je pretvoriti dani odgovor v veljaven JSON objekt, ki mora biti popolnoma skladen s podano JSON shemo.
 
-Imamo sledeč odgovor:
-{{answer}}
-
-Odgovor pretvori v JSON objekt ki se mora skladati s podano shemo:  
-{{schema}}  
-
-Vrni samo JSON objekt (brez dodatnih oznak, kot so ```json),
-Če je shema definirana samo s tipom (npr. `"type": "string"`), ne vrni JSON objekta, ampak le primitivno vrednost v skladu s shemo.  
+- Upoštevaj strukturo sheme – JSON objekt mora strogo slediti shemi {{schema}}. Vsi zahtevani atributi morajo biti prisotni in pravilno oblikovani.
+- Vrni samo JSON – ne dodajaj uvodnih ali zaključnih oznak (npr. ```json), opisov ali razlag
+- Primitivne vrednosti – če je shema definirana le s tipom (npr. "type": "string" ali "type": "integer"), vrni samo ustrezno primitivno vrednost in ne JSON objekta.
 
 {% if invalid_reply and error_message %}  
-Prejšnji odgovor, ki si ga ustvaril, je bil: 
+Prejšnji JSON objekt, ki si ga ustvaril, je bil: 
 **{{invalid_reply}}**  
+in ni ustrezal shemi.
 
 Struktura JSON odgovora je napačna in je povzročila napako: **{{error_message}}**  
 Popravi odgovor in poskusi znova. Vrni samo popravljen JSON, brez dodatnih razlag.  
 {% endif %}  
+
+
+Vprašanje:
+{{question}}
+
+Odgovor:
+{{answer}}
 """
 
 
@@ -39,7 +42,8 @@ def _init_pipeline(system_prompt: str):
                                        model="gpt-4o")
 
     converter_prompt_builder = PromptBuilder(template=_converter_prompt_template)
-    json_converter = OpenAIGenerator(api_key=Secret.from_token(settings.OPENAI_API_TOKEN), model="gpt-4o")
+    json_converter = OpenAIGenerator(api_key=Secret.from_token(settings.OPENAI_API_TOKEN),
+                                     model="gpt-4o")
     output_validator = OutputValidator()
 
     pipeline.add_component(name="llm", instance=answer_generator)
