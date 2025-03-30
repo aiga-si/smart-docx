@@ -13,11 +13,9 @@ class TestDocx(unittest.TestCase):
                 {"name": "Item 1", "description": "Description for item 1", "price": 10},
                 {"name": "Item 2", "description": "Description for item 2", "price": 20},
                 {"name": "Item 3", "description": "Description for item 3", "price": 30},
-            ],
-            "items2": [
-                {"name": "Item 1", "description": "Description for item 1", "price": 10},
-                {"name": "Item 2", "description": "Description for item 2", "price": 20},
-                {"name": "Item 3", "description": "Description for item 3", "price": 30},
+                {"name": "Item 4", "description": "Description for item 4", "price": 40},
+                {"name": "Item 5", "description": "Description for item 5", "price": 50},
+                {"name": "Item 6", "description": "Description for item 6", "price": 60},
             ]
         }
 
