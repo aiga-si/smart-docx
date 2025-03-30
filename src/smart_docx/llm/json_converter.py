@@ -51,4 +51,5 @@ class JsonConverter:
             error_message=error_message)
 
         run_result = self.generator.run(prompt)
-        return {"json_str": run_result.get("replies")[0]}
+        json_str = run_result.get("replies")[0]
+        return {"json_str": clean_json_string(json_str)}

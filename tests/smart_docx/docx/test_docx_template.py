@@ -10,9 +10,14 @@ class TestDocx(unittest.TestCase):
         context = {
             "name": "Svet",
             "items": [
-                {"name": "Item 1", "description": "Description for item 1"},
-                {"name": "Item 2", "description": "Description for item 2"},
-                {"name": "Item 3", "description": "Description for item 3"},
+                {"name": "Item 1", "description": "Description for item 1", "price": 10},
+                {"name": "Item 2", "description": "Description for item 2", "price": 20},
+                {"name": "Item 3", "description": "Description for item 3", "price": 30},
+            ],
+            "items2": [
+                {"name": "Item 1", "description": "Description for item 1", "price": 10},
+                {"name": "Item 2", "description": "Description for item 2", "price": 20},
+                {"name": "Item 3", "description": "Description for item 3", "price": 30},
             ]
         }
 
