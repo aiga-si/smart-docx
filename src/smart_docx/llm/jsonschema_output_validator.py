@@ -1,10 +1,13 @@
 import ast
 import json
+import logging
 import typing
 from enum import Enum
 
 import jsonschema
 from haystack import component
+
+logger = logging.getLogger(__name__)
 
 
 class SchemaType(Enum):
@@ -53,8 +56,7 @@ class OutputValidator:
             return {"valid_reply": parsed_reply}
 
         except (json.JSONDecodeError, jsonschema.ValidationError, ValueError) as e:
-            # TODO: switch with a debug log
-            print(
+            logger.debug(
                 f"OutputValidator at Iteration {self.iteration_counter}: Invalid response from LLM - Let's try again.\n"
                 f"Output from LLM:\n {reply} \n"
                 f"Error from OutputValidator: {e}"

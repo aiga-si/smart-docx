@@ -14,9 +14,9 @@ def _init_pipeline(system_prompt: str):
     pipeline = Pipeline(max_loops_allowed=5)
     answer_generator = OpenAIGenerator(api_key=Secret.from_token(settings.OPENAI_API_TOKEN),
                                        system_prompt=system_prompt,
-                                       model="gpt-4o")
+                                       model=settings.QA_MODEL)
 
-    json_converter = JsonConverter(api_key=Secret.from_token(settings.OPENAI_API_TOKEN), model="gpt-4o")
+    json_converter = JsonConverter(api_key=Secret.from_token(settings.OPENAI_API_TOKEN), model=settings.JSON_CONVERTER_MODEL)
 
     output_validator = OutputValidator()
 
