@@ -2,8 +2,6 @@ import re
 import typing
 
 from haystack import component
-from haystack.components.generators import OpenAIGenerator
-from haystack.utils import Secret
 from jinja2 import Template
 
 
@@ -14,8 +12,8 @@ def clean_json_string(json_string: str) -> str:
 
 @component
 class JsonConverter:
-    def __init__(self, api_key: Secret, model: str = "gpt-4o"):
-        self.generator = OpenAIGenerator(api_key=api_key, model=model)
+    def __init__(self, generator):
+        self.generator = generator
         self.prompt_template = Template("""
                Si strokovnjak na področju pretvarjanja teksta v JSON obliko.Spodaj sta navedena vprašanje ter odovor.
                Tvoja naloga je pretvoriti dani odgovor v veljaven JSON objekt, ki mora biti popolnoma skladen s podano JSON shemo.
